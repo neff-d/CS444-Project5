@@ -1,10 +1,6 @@
 #ifndef MKFS_H
 #define MKFS_H
 
-void mkfs(void) {
-
-
-    
-}
+void mkfs(void);
 
 #endif
