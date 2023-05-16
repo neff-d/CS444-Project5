@@ -10,14 +10,17 @@
 
 int main(void) {
 
-    char *myFile;
+    char *myFile = "output";
 
     // call image_open first
+
     image_fd = image_open(myFile, 1);
 
     // call mkfs to write the huge buffer into the file descriptor
 
     mkfs();
+
+    
 
 
 
