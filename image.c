@@ -13,7 +13,7 @@ puts (filename);
 
     else    
         image_fd = open(filename, O_RDWR | O_CREAT | O_TRUNC, 0600);
-
+printf("image_fd opened\n");
     return image_fd;
 }
 

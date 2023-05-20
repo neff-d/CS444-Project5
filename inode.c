@@ -12,10 +12,9 @@ int ialloc(void) {
     if(free_block_num == -1)
         return -1;
     
-    else {
-        set_free(inode_block, free_block_num, SET);
-        bwrite(free_block_num, inode_block);
-    }
+    set_free(inode_block, free_block_num, SET);
+    bwrite(free_block_num, inode_block);
+    
     return free_block_num;
 }
 
@@ -29,9 +28,8 @@ int alloc(void) {
     if(free_block_num == -1)
         return -1;
 
-    else {
-        set_free(data_block, free_block_num, SET);
-        bwrite(free_block_num, data_block);
-    }
+    set_free(data_block, free_block_num, SET);
+    bwrite(free_block_num, data_block);
+
     return free_block_num;
 }

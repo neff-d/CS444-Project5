@@ -23,7 +23,7 @@ mkfs.o: mkfs.c
 	gcc -c $<
 
 
-.PHONY: simfs_test
+.PHONY: test
 
 test: simfs_test
 	./simfs_test

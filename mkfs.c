@@ -17,10 +17,8 @@ void mkfs(void) {
         perror("write");
 
 
-    // use alloc() to set the first 7 blocks to 1
-
     for(int i = 0; i < 7; i++) {
-        i = alloc();
+        alloc();
     }
-
+    printf("Write and alloc complete\n");
 }

@@ -31,6 +31,6 @@ int main(void) {
 
 
 
-    image_close();
+    image_fd = image_close();
     
 }
