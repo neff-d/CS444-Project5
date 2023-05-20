@@ -1,10 +1,12 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 
 #include "mkfs.h"
 #include "image.h"
+#include "inode.h"
+#include "free.h"
+#include "block.h"
 
 void mkfs(void) {
 
@@ -17,5 +19,8 @@ void mkfs(void) {
 
     // use alloc() to set the first 7 blocks to 1
 
+    for(int i = 0; i < 7; i++) {
+        i = alloc();
+    }
 
 }

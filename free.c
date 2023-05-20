@@ -1,12 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-
 #include "free.h"
 #include "block.h"
 
-// Do these first
 
 void set_free(unsigned char *block, int num, int set) {
 
@@ -20,8 +14,6 @@ void set_free(unsigned char *block, int num, int set) {
     else {
         block[byte_num] &= ~(1 << bit_num);
     }
-
-    // bwrite() happens outside of whatever calls set_free()
 }
 
 
