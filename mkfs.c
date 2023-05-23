@@ -20,5 +20,4 @@ void mkfs(void) {
     for(int i = 0; i < 7; i++) {
         alloc();
     }
-    printf("Write and alloc complete\n");
 }

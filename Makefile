@@ -2,7 +2,7 @@ simfs_test: simfs_test.o simfs.a
 	gcc -o $@ $^
 
 simfs_test.o: simfs_test.c ctest.h
-	gcc -c $<
+	gcc -c $< -DCTEST_ENABLE
 
 simfs.a: block.o free.o image.o inode.o mkfs.o
 	ar rcs $@ $^
@@ -27,3 +27,6 @@ mkfs.o: mkfs.c
 
 test: simfs_test
 	./simfs_test
+
+.PHONY: clean
+	rm -f *.o

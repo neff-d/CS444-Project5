@@ -13,23 +13,8 @@ int ialloc(void) {
         return -1;
     
     set_free(inode_block, free_block_num, SET);
-    bwrite(free_block_num, inode_block);
+    bwrite(INODE_MAP_NUM, inode_block);
     
     return free_block_num;
 }
 
-int alloc(void) {
-
-    unsigned char block[BLOCK_SIZE];
-    unsigned char *data_block = bread(BLOCK_MAP_NUM, block);
-
-    int free_block_num = find_free(data_block);
-
-    if(free_block_num == -1)
-        return -1;
-
-    set_free(data_block, free_block_num, SET);
-    bwrite(free_block_num, data_block);
-
-    return free_block_num;
-}
