@@ -40,6 +40,13 @@ void ialloc_test(void) {
     image_fd = image_close();
 }
 
+void set_free_test(void) {
+
+    image_fd = image_open("test", 1);
+    unsigned char test_block[BLOCK_SIZE];
+    int test_block_num = 12;
+}
+
 int main(void) {
 
     CTEST_VERBOSE(1);
