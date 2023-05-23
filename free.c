@@ -8,13 +8,11 @@ void set_free(unsigned char *block, int num, int set) {
     int byte_num = num / 8;
     int bit_num = num % 8;
 
-    if(set == SET) {
+    if(set == SET)
         block[byte_num] |= 1 << bit_num;
-    }
-
-    else {
-        block[byte_num] &= ~(1 << bit_num);
-    }
+    
+    else 
+        block[byte_num] &= ~(1 << bit_num);    
 }
 
 
@@ -31,8 +29,8 @@ int find_free(unsigned char *block) {
 }
 
 
-int find_low_clear_bit(unsigned char x)
-{
+int find_low_clear_bit(unsigned char x) {
+
     for (int i = 0; i < 8; i++)
         if (!(x & (1 << i)))
             return i;

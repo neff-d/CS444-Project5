@@ -8,14 +8,14 @@
 #include "free.h"
 #include "block.h"
 
+
+
 void mkfs(void) {
 
-    unsigned char buffer[4194304] = {0};
+    unsigned char buffer[BLOCK_SIZE] = {0};
 
-    write(image_fd, buffer, sizeof buffer);
-    if(image_fd == -1)
-        perror("write");
-
+    for(int i = 0; i < NUM_BLOCKS; i++)            
+        write(image_fd, buffer, sizeof buffer);
 
     for(int i = 0; i < 7; i++) {
         alloc();

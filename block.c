@@ -12,8 +12,11 @@ unsigned char *bread(int block_num, unsigned char *block) {
 
     off_t offset = block_num * BLOCK_SIZE;
 
-    lseek(image_fd, offset, SEEK_SET);
-    read(image_fd, block, BLOCK_SIZE);
+    if(lseek(image_fd, offset, SEEK_SET) == -1)
+        return NULL;
+
+    if(read(image_fd, block, BLOCK_SIZE) != BLOCK_SIZE)
+        return NULL;
 
     return block;
 }
