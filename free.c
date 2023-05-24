@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "free.h"
 #include "block.h"
 #include "inode.h"
