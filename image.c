@@ -7,7 +7,9 @@
 int image_fd;
 
 int image_open(char *filename, int truncate) {
+
 puts (filename);
+
     if(truncate) 
         image_fd = open(filename, O_RDWR | O_CREAT | O_TRUNC, 0600);
 

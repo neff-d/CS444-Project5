@@ -4,6 +4,7 @@
 #define SET                 1
 #define CLEAR               0
 #define MAX_BIT_NUM     32767
+#define MIN_BIT_NUM         0
 
 void set_free(unsigned char *block, int num, int set);
 int find_free(unsigned char *block);
