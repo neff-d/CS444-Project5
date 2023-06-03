@@ -7,3 +7,4 @@ inode.o
 mkfs.o
 pack.o
 simfs.a
+test
