@@ -14,6 +14,7 @@
 #define INODE_FLAGS_OFFSET          7
 #define INODE_LINK_COUNT_OFFSET     8
 #define INODE_BLOCK_PTR_OFFSET      9
+#define BLOCK_PTR_SIZE              2
 
 struct inode {
     unsigned int size;
@@ -37,6 +38,7 @@ void read_inode(struct inode *in, int inode_num);
 void write_inode(struct inode *in);
 struct inode *iget(int inode_num);
 void iput(struct inode *in);
+void reset_incore(void);
 
 
 #endif

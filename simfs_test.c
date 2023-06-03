@@ -21,6 +21,7 @@ void setup(void) {
 void teardown(void) {
 
     image_fd = image_close();
+    reset_incore();
 }
 
 void image_open_test(void) {
@@ -59,12 +60,12 @@ void ialloc_test(void) {
 
     setup();
 
-    int ialloc1 = ialloc();
-    int ialloc2 = ialloc();
+    struct inode *ialloc1 = ialloc();
+    struct inode *ialloc2 = ialloc();
 
-    CTEST_ASSERT(ialloc1 != ialloc2, "Multiple calls to ialloc() return different inode blocks");
-    CTEST_ASSERT(ialloc1 == 0, "First call to ialloc() == 0");
-    CTEST_ASSERT(ialloc2 == 1, "Second call to ialloc() == 1");
+    CTEST_ASSERT(ialloc1 -> inode_num != ialloc2 -> inode_num, "Multiple calls to ialloc() return different inode nums");
+    CTEST_ASSERT(ialloc1 -> inode_num == 0, "First call to ialloc() == 0");
+    CTEST_ASSERT(ialloc2 -> inode_num == 1, "Second call to ialloc() == 1");
     
     teardown();
 }

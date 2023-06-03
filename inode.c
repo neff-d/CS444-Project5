@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "inode.h"
 #include "block.h"
 #include "free.h"
@@ -19,13 +20,21 @@ struct inode *ialloc(void) {
     set_free(inode_block, free_block_num, SET);
     bwrite(INODE_MAP_NUM, inode_block);
 
-    struct inode *in;
+    int inode_num = free_block_num;
 
-    if((in = iget(free_block_num)) == NULL)
+    if(inode_num == -1)
         return NULL;
 
-    in -> size, in -> owner_id, in -> permissions, in -> flags = 0, 0, 0, 0;
-    in -> inode_num = free_block_num;
+    struct inode *in = iget(inode_num);
+
+    if(in == NULL)
+        return NULL;
+
+    in -> size = 0;
+    in -> owner_id = 0;
+    in -> permissions = 0;
+    in -> flags = 0;
+    in -> inode_num = inode_num;
 
     for(int i = 0; i < INODE_PTR_COUNT; i++) {
         in -> block_ptr[i] = 0;
@@ -65,16 +74,18 @@ void read_inode(struct inode *in, int inode_num) {
     int block_offset = inode_num % INODES_PER_BLOCK;  // offset in inodes
     int block_offset_bytes = block_offset * INODE_SIZE;
 
-    unsigned char *block;
-    block = bread(block_num, block);
+    unsigned char block[BLOCK_SIZE];
+    bread(block_num, block);
 
     in -> size = read_u32(block + block_offset_bytes + INODE_SIZE_OFFSET); 
     in -> owner_id = read_u16(block + block_offset_bytes + INODE_OWNERID_OFFSET);
     in -> permissions = read_u8(block + block_offset_bytes + INODE_PERMISSIONS_OFFSET);
     in -> flags = read_u8(block + block_offset_bytes + INODE_FLAGS_OFFSET);
     in -> link_count = read_u8(block + block_offset_bytes + INODE_LINK_COUNT_OFFSET);
-    in -> block_ptr[INODE_PTR_COUNT] = read_u16(block + block_offset_bytes + INODE_BLOCK_PTR_OFFSET);
-
+   
+    for(int i = 0; i < INODE_PTR_COUNT; i++) {
+        in -> block_ptr[i] = read_u16(block + block_offset_bytes + INODE_BLOCK_PTR_OFFSET + (i * BLOCK_PTR_SIZE));
+    }
 }
 
 void write_inode(struct inode *in) {
@@ -84,30 +95,37 @@ void write_inode(struct inode *in) {
     int block_offset = inode_num % INODES_PER_BLOCK;  // offset in inodes
     int block_offset_bytes = block_offset * INODE_SIZE;
     
-    unsigned char *block;
-    block = bread(block_num, block);
+    unsigned char block[BLOCK_SIZE];
+    bread(block_num, block);
 
     write_u32(block + block_offset_bytes + INODE_SIZE_OFFSET, in -> size);
     write_u16(block + block_offset_bytes + INODE_OWNERID_OFFSET, in -> owner_id);
     write_u8(block + block_offset_bytes + INODE_PERMISSIONS_OFFSET, in -> permissions);
     write_u8(block + block_offset_bytes + INODE_FLAGS_OFFSET, in -> flags);
     write_u8(block + block_offset_bytes + INODE_LINK_COUNT_OFFSET, in -> link_count);
-    write_u16(block + block_offset_bytes + INODE_BLOCK_PTR_OFFSET, in -> block_ptr[INODE_PTR_COUNT]);
+
+    for(int i = 0; i < INODE_PTR_COUNT; i++) {
+        write_u16(block + block_offset_bytes + INODE_BLOCK_PTR_OFFSET + (i * BLOCK_PTR_SIZE),
+                    in -> block_ptr[i]);
+    }
 }
 
 struct inode *iget(int inode_num) {
 
-    struct inode *in;
+    struct inode *in = find_incore(inode_num);
 
-    if((in = find_incore(inode_num)) != NULL) {
+    if(in != NULL) {
         in -> ref_count++;
         return in;
     }
 
-    if((in = find_incore_free()) == NULL)
+    in = find_incore_free();
+
+    if(in == NULL)
         return NULL;
 
     read_inode(in, in -> inode_num);
+
     in -> ref_count = 1;
     in -> inode_num = inode_num;
 
@@ -123,5 +141,12 @@ void iput(struct inode *in) {
 
     if(in -> ref_count == 0)
         write_inode(in);
+}
+
+void reset_incore(void) {
+
+    for(int i = 0; i < MAX_SYS_OPEN_FILES; i++) {
+        incore[i].ref_count = 0;
+    }
 }
 
