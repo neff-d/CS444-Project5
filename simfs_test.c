@@ -10,6 +10,7 @@
 #include "block.h"
 #include "free.h"
 #include "ctest.h"
+#include "pack.h"
 
 
 void setup(void) {
@@ -21,7 +22,7 @@ void setup(void) {
 void teardown(void) {
 
     image_fd = image_close();
-    reset_incore();
+    clear_incore();
 }
 
 void image_open_test(void) {
@@ -66,6 +67,12 @@ void ialloc_test(void) {
     CTEST_ASSERT(ialloc1 -> inode_num != ialloc2 -> inode_num, "Multiple calls to ialloc() return different inode nums");
     CTEST_ASSERT(ialloc1 -> inode_num == 0, "First call to ialloc() == 0");
     CTEST_ASSERT(ialloc2 -> inode_num == 1, "Second call to ialloc() == 1");
+
+    set_incore();
+
+    struct inode *alloc3 = ialloc();
+
+    CTEST_ASSERT(alloc3 == NULL, "ialloc() returns NULL if there are no free inodes");
     
     teardown();
 }
@@ -184,6 +191,173 @@ void bwrite_test(void) {
     teardown();
 }
 
+void find_incore_free_test(void) {
+
+    setup();
+
+    struct inode *in = find_incore_free();
+    set_nth_incore(0);
+
+    CTEST_ASSERT(in -> inode_num == 0, "find_incore_free() returns inode 0 when the incore array is empty");
+
+    struct inode *in1 = find_incore_free();
+    set_nth_incore(1);
+    
+    CTEST_ASSERT(in1 -> inode_num == 1, "find_incore_free() returns inode 1 to be returned when inode 0 is taken");
+
+    set_incore();
+    clear_nth_incore(47);
+
+    struct inode *in3 = find_incore_free();
+    set_nth_incore(47);
+
+    CTEST_ASSERT(in3 != NULL, "find_incore_free() returns inode 47 to be returned when it is the only free inode");
+
+    struct inode *in4 = find_incore_free();
+
+    CTEST_ASSERT(in4 == NULL, "find_incore_free() returns NULL when there are no free inodes");
+
+    teardown();
+}
+
+void find_incore_test(void) {
+
+    setup();
+
+    struct inode *in1 = ialloc();
+    struct inode *in2 = ialloc();
+
+    struct inode *test1 = find_incore(in1 -> inode_num);
+    struct inode *test2 = find_incore(in2 -> inode_num);
+
+    CTEST_ASSERT(test1 == in1, "find_incore() returns correct pointer based on inode number");
+    CTEST_ASSERT(test2 != test1, "find_incore() returns different pointers for different inode numbers");
+
+    struct inode *test3 = find_incore(6);
+
+    CTEST_ASSERT(test3 == NULL, "find_incore() returns NULL given an inode number where its reference count = 0");
+
+    teardown();
+}
+
+void read_write_inode_test(void) {
+
+    setup();
+
+    struct inode *in1 = ialloc();
+    struct inode *in2 = ialloc();
+    
+    in1 -> size = 48;
+    in1 -> owner_id = 4;
+    in1 -> permissions = 'W';
+    in1 -> flags = 'F';
+    in1 -> link_count = '3';
+    in1 -> block_ptr[4] = 2;
+
+    write_inode(in1);
+    read_inode(in2, in1 -> inode_num);
+    
+    CTEST_ASSERT(in2 -> size == in1 -> size, "read_inode() returns correct size");
+    CTEST_ASSERT(in2 -> owner_id == in1 -> owner_id, "read_inode() returns correct owner_id");
+    CTEST_ASSERT(in2 -> permissions == in1 -> permissions, "read_inode() returns correct permissions");
+    CTEST_ASSERT(in2 -> flags == in1 -> flags, "read_inode() returns correct flags");
+    CTEST_ASSERT(in2 -> link_count == in1 -> link_count, "read_inode() returns correct link_count");
+    CTEST_ASSERT(in2 -> block_ptr[4] == in1 -> block_ptr[4], "read_inode returns correct block pointer");
+
+    struct inode *in3 = ialloc();
+    struct inode *in4 = ialloc();
+
+    in3 -> inode_num = 255;
+    in3 -> size = 63;
+    in3 -> owner_id = 2;
+    in3 -> permissions = 'R';
+    in3 -> flags = 'C';
+    in3 -> link_count = '4';
+    in3 -> block_ptr[15] = 1;
+
+    write_inode(in3);
+    read_inode(in4, in3 -> inode_num);
+
+    CTEST_ASSERT(in4 -> size == in3 -> size, "read_inode() returns correct size");
+    CTEST_ASSERT(in4 -> owner_id == in3 -> owner_id, "read_inode() returns correct owner_id");
+    CTEST_ASSERT(in4 -> permissions == in3 -> permissions, "read_inode() returns correct permissions");
+    CTEST_ASSERT(in4 -> flags == in3 -> flags, "read_inode() returns correct flags");
+    CTEST_ASSERT(in4 -> link_count == in3 -> link_count, "read_inode() returns correct link_count");
+    CTEST_ASSERT(in4 -> block_ptr[15] == in3 -> block_ptr[15], "read_inode returns correct block_ptr");
+
+    struct inode *in5 = ialloc();
+    struct inode *in6 = ialloc();
+
+    in5 -> inode_num = 76;
+    in5 -> size = 33;
+    in5 -> owner_id = 1;
+    in5 -> permissions = 'R';
+    in5 -> flags = 'A';
+    in5 -> link_count = '5';
+    in5 -> block_ptr[11] = 3;
+
+    write_inode(in5);
+    read_inode(in6, in5 -> inode_num);
+
+    CTEST_ASSERT(in6 -> size == in5 -> size, "read_inode() returns correct size");
+    CTEST_ASSERT(in6 -> owner_id == in5 -> owner_id, "read_inode() returns correct owner_id");
+    CTEST_ASSERT(in6 -> permissions == in5 -> permissions, "read_inode() returns correct permissions");
+    CTEST_ASSERT(in6 -> flags == in5 -> flags, "read_inode() returns correct flags");
+    CTEST_ASSERT(in6 -> link_count == in5 -> link_count, "read_inode() returns correct link_count");
+    CTEST_ASSERT(in6 -> block_ptr[11] == in5 -> block_ptr[11], "read_inode returns correct block_ptr");
+
+
+    teardown();
+}
+
+void iget_test(void) {
+
+    setup();
+
+    struct inode *in1 = ialloc();
+    
+    struct inode *in2 = iget(in1 -> inode_num);
+
+    CTEST_ASSERT(in1 == in2, "iget() returns a pointer to an existing inode");
+    CTEST_ASSERT(in1 -> ref_count == 2, "iget() increments reference count when returning an existing in-core inode");
+
+    struct inode *in3 = iget(7);
+
+    CTEST_ASSERT(in3 -> inode_num == 7, "iget() sets inode_num to the value passed in if that in-core inode is free");
+    CTEST_ASSERT(in3 -> ref_count == 1, "iget() sets inode reference count to 1 when returning a free in-core inode pointer");
+
+    set_incore();
+
+    struct inode *in4 = iget(256);
+
+    CTEST_ASSERT(in4 == NULL, "iget() returns NULL when given an inode number out of range");
+
+    teardown();
+}
+
+void iput_test(void) {
+
+    setup();
+
+    struct inode *in1 = ialloc();
+
+    in1 -> ref_count = 2;
+
+    iput(in1);
+    read_inode(in1, in1 -> inode_num);
+
+    CTEST_ASSERT(in1 -> ref_count == 1, "iput() decrements reference count of an existing inode");
+
+    struct inode *in2 = ialloc();
+
+    iput(in2);
+    read_inode(in2, in2 -> inode_num);
+
+    struct inode *in3 = find_incore(in2 -> inode_num);
+
+    CTEST_ASSERT(in3 == NULL, "iput() frees an inode if reference count = 0");
+}
+
 int main(void) {
 
     CTEST_VERBOSE(1);
@@ -204,6 +378,16 @@ int main(void) {
     find_free_test();
 
     bwrite_test();
+
+    find_incore_free_test();
+
+    find_incore_test();
+
+    read_write_inode_test();
+
+    iget_test();
+
+    iput_test();
 
 
 

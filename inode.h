@@ -38,7 +38,11 @@ void read_inode(struct inode *in, int inode_num);
 void write_inode(struct inode *in);
 struct inode *iget(int inode_num);
 void iput(struct inode *in);
-void reset_incore(void);
+void set_incore(void);
+void clear_incore(void);
+void set_nth_incore(int n);
+void clear_nth_incore(int n);
+void print_inode(char *label, struct inode *in);
 
 
 #endif
