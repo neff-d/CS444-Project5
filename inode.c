@@ -71,7 +71,7 @@ struct inode *find_incore(unsigned int inode_num) {
 void read_inode(struct inode *in, int inode_num) {
 
     int block_num = inode_num / INODES_PER_BLOCK + INODE_FIRST_BLOCK;
-    int block_offset = inode_num % INODES_PER_BLOCK;  // offset in inodes
+    int block_offset = inode_num % INODES_PER_BLOCK;
     int block_offset_bytes = block_offset * INODE_SIZE;
 
     unsigned char block[BLOCK_SIZE];
@@ -92,7 +92,7 @@ void write_inode(struct inode *in) {
 
     int inode_num = in -> inode_num;
     int block_num = inode_num / INODES_PER_BLOCK + INODE_FIRST_BLOCK;
-    int block_offset = inode_num % INODES_PER_BLOCK;  // offset in inodes
+    int block_offset = inode_num % INODES_PER_BLOCK;
     int block_offset_bytes = block_offset * INODE_SIZE;
     
     unsigned char block[BLOCK_SIZE];
