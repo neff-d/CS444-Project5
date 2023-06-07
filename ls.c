@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "ls.h"
 #include "mkfs.h"
 #include "inode.h"
 #include "directory.h"
