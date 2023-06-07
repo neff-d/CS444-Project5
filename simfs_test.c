@@ -49,7 +49,7 @@ void alloc_test(void) {
 
     int test_alloc = alloc();
 
-    CTEST_ASSERT(test_alloc == 7, "Testing allocation of first 7 blocks after running mkfs()");
+    CTEST_ASSERT(test_alloc == 8, "Testing allocation of first 8 blocks after running mkfs()");
 
     int alloc1 = alloc();
     int alloc2 = alloc();
@@ -67,8 +67,8 @@ void ialloc_test(void) {
     struct inode *ialloc2 = ialloc();
 
     CTEST_ASSERT(ialloc1 -> inode_num != ialloc2 -> inode_num, "Multiple calls to ialloc() return different inode nums");
-    CTEST_ASSERT(ialloc1 -> inode_num == 0, "First call to ialloc() == 0");
-    CTEST_ASSERT(ialloc2 -> inode_num == 1, "Second call to ialloc() == 1");
+    CTEST_ASSERT(ialloc1 -> inode_num == 1, "First call to ialloc() == 1");
+    CTEST_ASSERT(ialloc2 -> inode_num == 2, "Second call to ialloc() == 2");
 
     set_incore();
 
@@ -203,9 +203,9 @@ void find_incore_free_test(void) {
     CTEST_ASSERT(in -> inode_num == 0, "find_incore_free() returns inode 0 when the incore array is empty");
 
     struct inode *in1 = find_incore_free();
-    set_nth_incore(1);
+    set_nth_incore(2);
     
-    CTEST_ASSERT(in1 -> inode_num == 1, "find_incore_free() returns inode 1 to be returned when inode 0 is taken");
+    CTEST_ASSERT(in1 -> inode_num == 2, "find_incore_free() returns inode 2 to be returned when inode 1 is taken");
 
     set_incore();
     clear_nth_incore(47);
@@ -392,6 +392,12 @@ int main(void) {
     iget_test();
 
     iput_test();
+
+    setup();
+
+    ls();
+
+    teardown();
 
 
 

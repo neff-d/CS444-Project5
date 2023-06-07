@@ -24,24 +24,18 @@ void mkfs(void) {
         alloc();
     }
 /*
-    ######## I commented this section out until Project 6 is graded because it is causing some
-             of the previous tests I wrote to fail #######
-
+    vvvvvv I commented this section out until Project 6 is graded because it is causing some
+             of the previous tests I wrote to fail vvvvvv
+*/
     struct inode *in = ialloc();
  
-    // alloc() new regular block
-
     int free_block_num = alloc();
 
     in -> flags = DIR_FLAG_NUM;
     in -> size = ENTRY_SIZE * DIR_BASE_ENTRIES;
     in -> block_ptr[0] = free_block_num;
 
-    // create the unsigned char block
-
     unsigned char block[BLOCK_SIZE];
-
-    // write_16() to fill the block and strcpy() the file names
 
     write_u16(block, in -> inode_num);
     write_u16(block + ENTRY_SIZE, in -> inode_num);
@@ -49,10 +43,6 @@ void mkfs(void) {
     strcpy(block + FILE_NAME_OFFSET, ".");
     strcpy(block + ENTRY_SIZE + FILE_NAME_OFFSET, "..");
 
-    // bwrite() to disk to get the data from memory to disk
-    // iput() the root directory inode to disk
-
     bwrite(free_block_num, block);
     iput(in);
-*/
 }
