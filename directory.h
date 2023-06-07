@@ -4,7 +4,7 @@
 #define ENTRY_SIZE        32
 #define DIR_BASE_ENTRIES   2
 #define DIR_BASE_OFFSET    0
-#define ENTRY_NAME_OFFSET  2
+#define FILE_NAME_OFFSET  2
 
 
 struct directory {

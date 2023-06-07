@@ -11,6 +11,8 @@
 #include "free.h"
 #include "ctest.h"
 #include "pack.h"
+#include "directory.h"
+#include "ls.h"
 
 
 void setup(void) {
@@ -356,6 +358,8 @@ void iput_test(void) {
     struct inode *in3 = find_incore(in2 -> inode_num);
 
     CTEST_ASSERT(in3 == NULL, "iput() frees an inode if reference count = 0");
+
+    teardown();
 }
 
 int main(void) {
@@ -388,6 +392,7 @@ int main(void) {
     iget_test();
 
     iput_test();
+
 
 
 

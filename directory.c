@@ -38,7 +38,7 @@ int directory_get(struct directory *dir, struct directory_entry *ent) {
 
     unsigned short ent_inode_num = read_u16(block + offset_in_block);
     ent -> inode_num = ent_inode_num;
-    strcpy(ent -> name, (char *) block + offset_in_block + ENTRY_NAME_OFFSET);
+    strcpy(ent -> name, (char *) block + offset_in_block + FILE_NAME_OFFSET);
 
     return 0;
 }
