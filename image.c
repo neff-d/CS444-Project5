@@ -22,4 +22,6 @@ puts (filename);
 int image_close(void) {
     
     close(image_fd);
+
+    return 0;
 }

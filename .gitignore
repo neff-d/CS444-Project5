@@ -6,5 +6,7 @@ image.o
 inode.o
 mkfs.o
 pack.o
+directory.o
+ls.o
 simfs.a
 test

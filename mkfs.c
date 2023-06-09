@@ -40,8 +40,8 @@ void mkfs(void) {
     write_u16(block, in -> inode_num);
     write_u16(block + ENTRY_SIZE, in -> inode_num);
 
-    strcpy(block + FILE_NAME_OFFSET, ".");
-    strcpy(block + ENTRY_SIZE + FILE_NAME_OFFSET, "..");
+    strcpy((char *) block + FILE_NAME_OFFSET, ".");
+    strcpy((char *) block + ENTRY_SIZE + FILE_NAME_OFFSET, "..");
 
     bwrite(free_block_num, block);
     iput(in);
