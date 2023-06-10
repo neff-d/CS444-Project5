@@ -1,9 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
+
 #include "directory.h"
 #include "inode.h"
 #include "block.h"
 #include "pack.h"
+#include "dirbasename.h"
 
 
 struct directory *directory_open(int inode_num) {
@@ -49,4 +51,25 @@ void directory_close(struct directory *d) {
 
     iput(d -> inode);
     free(d);
+}
+
+struct inode *namei(char *path) {
+
+    struct inode *in = iget(ROOT_INODE_NUM);
+
+    char base_path[BLOCK_SIZE];
+
+    get_basename(path, base_path);
+
+    if(strcmp("/", base_path) == 0)
+        return in;
+
+    return NULL;
+}
+
+int directory_make(char *path) {
+
+
+
+    return 0;
 }

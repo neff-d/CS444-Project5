@@ -8,5 +8,6 @@ mkfs.o
 pack.o
 directory.o
 ls.o
+dirbasename.o
 simfs.a
 test

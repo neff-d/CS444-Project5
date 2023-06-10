@@ -4,7 +4,7 @@ simfs_test: simfs_test.o simfs.a
 simfs_test.o: simfs_test.c ctest.h
 	gcc -c $< -DCTEST_ENABLE
 
-simfs.a: block.o free.o image.o inode.o mkfs.o pack.o ls.o directory.o
+simfs.a: block.o free.o image.o inode.o mkfs.o pack.o ls.o directory.o dirbasename.o
 	ar rcs $@ $^
 
 block.o: block.c
@@ -29,6 +29,9 @@ ls.o: ls.c
 	gcc -c $<
 
 directory.o: directory.c
+	gcc -c $<
+
+dirbasename.o: dirbasename.c
 	gcc -c $<
 
 .PHONY: test

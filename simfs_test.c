@@ -13,6 +13,7 @@
 #include "pack.h"
 #include "directory.h"
 #include "ls.h"
+#include "dirbasename.h"
 
 
 void setup(void) {
@@ -362,6 +363,110 @@ void iput_test(void) {
     teardown();
 }
 
+void directory_open_test(void) {
+
+    setup();
+
+    set_incore();
+
+    int inode_num = 1;
+
+    struct directory *dir1 = directory_open(inode_num);
+    
+    CTEST_ASSERT(dir1 == NULL, "directory_open() returns NULL when all incore inodes are set");
+
+    teardown();
+
+    setup();
+
+    inode_num = 2;
+
+    struct directory *dir2 = directory_open(inode_num);
+
+    CTEST_ASSERT(dir2 != NULL, "directory_open() returns pointer to a struct directory when incore array is not full");
+    CTEST_ASSERT(dir2 -> inode == iget(inode_num), "directory_open() returns a directory with the inode of the same inode_num that was passed in");
+    CTEST_ASSERT(dir2 -> inode -> inode_num == inode_num, "'directory_open() returns a directory whose inode_num is the same as what was passed in");
+    CTEST_ASSERT(dir2 -> offset == DIR_BASE_OFFSET, "directory_open() initializes its offset to the base offset of 0");
+
+    directory_close(dir2);
+
+    teardown();
+}
+
+void directory_get_test(void) {
+
+    setup();
+
+    int inode_num1 = 4;
+    struct directory_entry *ent1 = malloc(sizeof(struct directory_entry));
+    struct directory *dir1 = directory_open(inode_num1);
+    dir1 -> offset = 4097;
+
+    CTEST_ASSERT(directory_get(dir1, ent1) == -1, "directory_get() returns -1 when dir1 -> offset is greater than dir1 -> inode -> size");
+
+    dir1 -> offset = DIR_BASE_OFFSET;
+
+    CTEST_ASSERT(directory_get(dir1, ent1) == 0, "directory_get() returns 0 on success");
+
+    free(ent1);
+    directory_close(dir1); 
+    teardown();
+
+    setup();
+
+    struct directory_entry *ent2 = malloc(sizeof(struct directory_entry));
+    struct directory_entry *ent3 = malloc(sizeof(struct directory_entry));
+    struct directory *dir2 = directory_open(0);
+
+    int result = directory_get(dir2, ent2);
+    result = directory_get(dir2, ent3);
+
+    CTEST_ASSERT(strcmp(ent2 -> name, ".") == 0, "directory_get() returns the first entry's name on the first call to it");
+    CTEST_ASSERT(strcmp(ent3 -> name, "..") == 0, "directory_get() properly increments offset in the directory before returning");
+
+    free(ent2);
+    free(ent3);
+    directory_close(dir2);
+
+    set_nth_incore(0);
+    struct directory_entry *ent4 = malloc(sizeof(struct directory_entry));
+    struct directory *dir3 = directory_open(85);
+
+    result = directory_get(dir3, ent4);
+
+    CTEST_ASSERT(strcmp(ent4 -> name, ".") != 0, "directory_get() doesn't read an entry name that doesn't exist");
+
+    free(ent4);
+    directory_close(dir3);
+    teardown();
+}
+
+void directory_close_test(void) {
+
+    setup();
+
+    struct directory *dir1 = directory_open(98);
+    int dir1_inode_num = dir1 -> inode -> inode_num;
+
+    directory_close(dir1);
+
+    struct inode *in1 = find_incore(dir1_inode_num);
+
+    CTEST_ASSERT(in1 == NULL, "directory_close() frees the directory's inode when its reference count = 0");
+
+    teardown();
+}
+
+void run_ls(void) {
+
+    setup();
+
+    ls();
+
+    teardown();
+
+}
+
 int main(void) {
 
     CTEST_VERBOSE(1);
@@ -393,11 +498,14 @@ int main(void) {
 
     iput_test();
 
-    setup();
+    directory_open_test();
 
-    ls();
+    directory_get_test();
 
-    teardown();
+    directory_close_test();
+
+    run_ls();
+    
 
 
 

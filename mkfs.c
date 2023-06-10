@@ -23,10 +23,7 @@ void mkfs(void) {
     for(int i = 0; i < 7; i++) {
         alloc();
     }
-/*
-    vvvvvv I commented this section out until Project 6 is graded because it is causing some
-             of the previous tests I wrote to fail vvvvvv
-*/
+
     struct inode *in = ialloc();
  
     int free_block_num = alloc();
