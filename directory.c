@@ -56,14 +56,14 @@ void directory_close(struct directory *d) {
 
 struct inode *namei(char *path) {
 
-    struct inode *in = iget(ROOT_INODE_NUM);
-
     char base_path[BLOCK_SIZE];
 
     get_basename(path, base_path);
 
-    if(strcmp("/", base_path) == 0)
+    if(strcmp("/", base_path) == 0) {
+        struct inode *in = iget(ROOT_INODE_NUM);
         return in;
+    }
 
     return NULL;
 }

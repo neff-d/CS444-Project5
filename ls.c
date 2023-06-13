@@ -4,7 +4,7 @@
 #include "inode.h"
 #include "directory.h"
 
-void ls(void)
+void ls(int dir_num)
 {
     struct directory *dir;
     struct directory_entry ent;

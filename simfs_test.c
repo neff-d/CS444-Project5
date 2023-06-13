@@ -457,15 +457,84 @@ void directory_close_test(void) {
     teardown();
 }
 
-void run_ls(void) {
+void namei_test(void) {
 
     setup();
 
-    ls();
+    struct inode *in1 = namei("/");
+
+    CTEST_ASSERT(in1 != NULL, "namei() returns an inode when called on root directory");
+    CTEST_ASSERT(in1 -> inode_num == 0, "namei() returns root directory's inode when called with '/'");
+
+    struct inode *in2 = namei("/foo");
+
+    CTEST_ASSERT(in2 == NULL, "namei() returns NULL when given a path that does not exist");
+
+    teardown();
+}
+
+void directory_make_test(void) {
+
+    setup();
+
+    set_incore();
+
+    int result = directory_make("/foo");
+
+    CTEST_ASSERT(result == -1, "directory_make() returns failed when the incore array is full");
+
+    char buffer[BLOCK_SIZE];
+
+    bread(BLOCK_MAP_NUM, buffer);
+    memset(buffer, 0xFF, BLOCK_SIZE);
+    bwrite(BLOCK_MAP_NUM, buffer);
+
+    result = directory_make("/bar");
+
+    CTEST_ASSERT(result == -1, "directory_make() returns failed when all data blocks are full");
 
     teardown();
 
+    setup();
+
+    result = directory_make("/baz");
+
+    struct directory *dir1 = directory_open(1);
+    struct directory_entry *ent1 = malloc(sizeof(struct directory_entry));
+
+    directory_get(dir1, ent1);
+    directory_get(dir1, ent1);
+    directory_get(dir1, ent1);
+
+   
+    CTEST_ASSERT(strcmp(ent1 -> name, "baz") == 0, "directory_make() adds correct director name");
+    CTEST_ASSERT(ent1 -> inode_num == dir1 -> inode -> inode_num, "directory_make() sets the directory's inode number to its entry inode number in root directory ");
+    CTEST_ASSERT(result == 0, "directory_make() returns 0 when successful");
+
+    free(ent1);
+    teardown();
 }
+
+void make_some_directories(void) {
+
+    setup();
+
+    printf("Making some directories...\n");
+
+    directory_make("/foo");
+    directory_make("/bar");
+    directory_make("/baz");
+    directory_make("/frobozz");
+    directory_make("/yabba");
+    directory_make("/dabba");
+    directory_make("/doo");
+
+    ls(0);
+
+    teardown();
+}
+
+
 
 int main(void) {
 
@@ -504,11 +573,11 @@ int main(void) {
 
     directory_close_test();
 
-    run_ls();
-    
+    namei_test();
 
+    directory_make_test();
 
-
+    make_some_directories();
 
     CTEST_RESULTS();
     
